@@ -112,6 +112,15 @@ These decisions were made deliberately. Do not reverse them without asking:
 - Use Mongoose sessions/transactions for multi-step writes (lead conversion; a
   stage change that also appends `statusHistory`).
 
+## Working with Claude
+
+- **"commit"** always means: create a git commit with a meaningful message
+  derived from the actual changes and additions in that diff — never a generic
+  or placeholder message.
+- **"push"** always means: push to the remote repository declared in
+  `package.json` (`repository.url` →
+  `https://github.com/DaniBlaze1206/CRM-App.git`). No need to ask which remote.
+
 ## Commands
 
 ```bash
