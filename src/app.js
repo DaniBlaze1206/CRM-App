@@ -1,4 +1,5 @@
 const express = require('express');
+const logger = require('./config/logger');
 const app = express();
 
 
@@ -13,7 +14,7 @@ app.get('/health', (req, res) => {
 
 
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  logger.error(err);
   res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
 });
 

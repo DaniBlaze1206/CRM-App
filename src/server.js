@@ -1,4 +1,5 @@
 const config = require('./config/env');
+const logger = require('./config/logger');
 const connectDB = require('./config/db');
 const app = require('./app');
 
@@ -8,12 +9,12 @@ async function start() {
   await connectDB();
 
   server = app.listen(config.port, () => {
-    console.info(`CRM server running on port ${config.port} [${config.env}]`);
+    logger.info(`CRM server running on port ${config.port} [${config.env}]`);
   });
 }
 
 async function shutdown(signal) {
-  console.info(`${signal} received, shutting down`);
+  logger.info(`${signal} received, shutting down`);
   if (server) {
     await new Promise((resolve) => server.close(resolve));
   }
