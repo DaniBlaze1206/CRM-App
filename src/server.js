@@ -1,19 +1,30 @@
+const config = require('./config/env');
+const connectDB = require('./config/db');
 const app = require('./app');
 
-const PORT = process.env.PORT || 3000;
+let server;
 
-const server = app.listen(PORT, () => {
-  console.log(`CRM server running on port ${PORT}`);
-});
+async function start() {
+  await connectDB();
 
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down');
-  server.close(() => process.exit(0));
-});
+  server = app.listen(config.port, () => {
+    console.info(`CRM server running on port ${config.port} [${config.env}]`);
+  });
+}
 
-process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down');
-  server.close(() => process.exit(0));
-});
+async function shutdown(signal) {
+  console.info(`${signal} received, shutting down`);
+  if (server) {
+    await new Promise((resolve) => server.close(resolve));
+  }
+  const mongoose = require('mongoose');
+  await mongoose.connection.close(false);
+  process.exit(0);
+}
 
-module.exports = server;
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
+start();
+
+module.exports = { start };
