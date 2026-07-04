@@ -1,0 +1,34 @@
+{
+  "name": "crm-app",
+  "version": "1.0.0",
+  "description": "A MERN sales CRM with a visual pipeline and a Google Gemini AI co-pilot. Premium sky-blue fin-tech dashboard aesthetic. This plan splits into Shared Foundations, a Backend Track, and a Frontend Track, then a Build Sequence to tie them together.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DaniBlaze1206/CRM-App.git"
+  },
+  "author": "Daniel Ghannadi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DaniBlaze1206/CRM-App/issues"
+  },
+  "homepage": "https://github.com/DaniBlaze1206/CRM-App#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "helmet": "^8.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.7.3",
+    "morgan": "^1.11.0",
+    "winston": "^3.19.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
