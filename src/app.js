@@ -1,21 +1,20 @@
 const express = require('express');
-const logger = require('./config/logger');
+const notFound = require('./middlewares/notFound');
+const errorHandler = require('./middlewares/errorHandler');
+
 const app = express();
 
-
+// Global middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
+// Routes
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', uptime: process.uptime() });
 });
 
-
-
-app.use((err, req, res, next) => {
-  logger.error(err);
-  res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
-});
+// 404 for unmatched routes, then the single error funnel (registered LAST).
+app.use(notFound);
+app.use(errorHandler);
 
 module.exports = app;
