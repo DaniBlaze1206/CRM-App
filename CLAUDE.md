@@ -94,6 +94,15 @@ These decisions were made deliberately. Do not reverse them without asking:
 - **Errors:** wrap every async controller in `asyncHandler`. Throw
   `new ApiError(statusCode, message)` from services — never call `res` from a
   service. `errorHandler` is registered **last** in `app.js`.
+- **`asyncHandler` is controller-layer glue only.** Its whole job is
+  `.catch(next)` — forwarding an async rejection to Express's error pipeline. It
+  produces a function with the Express `(req, res, next)` signature. **Never wrap
+  a service (or any HTTP-agnostic function) in it.** A service has no `next`, so
+  the `.catch(next)` does nothing useful; the wrapper only appears to work by
+  coincidence of argument order and is dead, misleading ceremony that drags
+  Express semantics into a layer that must not know Express exists. Services just
+  `throw new ApiError(...)`; the rejection propagates up through the awaiting
+  (wrapped) controller to `errorHandler`.
 - **app.js ordering (critical):** global middleware → routes → `notFound` →
   `errorHandler`. Wrong order = handlers silently never fire.
 - **System-managed fields are never accepted from client input** in validators:
