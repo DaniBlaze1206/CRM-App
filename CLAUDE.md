@@ -46,7 +46,7 @@ Errors flow back up: a service throws `ApiError` → `asyncHandler` forwards it 
 src/
   config/       env.js (validated config), db.js (Mongoose connection), logger.js
   models/       one <name>.model.js per collection (canonical schema only)
-  middleware/   authMiddleware.js, errorHandler.js, notFound.js
+  middleware/   authMiddleware.js, authorize.js, errorHandler.js, notFound.js
   validators/   one <name>.validator.js per model (Zod schemas)
   routes/       index.js (aggregator) + one <name>.routes.js per resource
   controllers/  one <name>.controller.js per resource
@@ -75,9 +75,13 @@ These decisions were made deliberately. Do not reverse them without asking:
 - **"Lost" = status + `lostAt` + `lostReason`** (a constrained enum, never free
   text) on **Lead and Deal**. A Contact is a person and does not get "lost".
   Whenever status/stage becomes `lost`, set all three together.
-- **No `authorize` middleware.** Authentication is in `authMiddleware`;
-  **authorization (ownership + admin checks) lives inside services.** Every mutating
-  service method follows: fetch → check existence (404) → check ownership/role
+- **Authorization is split by type.** Authentication is `authMiddleware`.
+  **Role/admin checks live in an `authorize` middleware** on the route
+  (`authMiddleware → authorize('admin') → controller`) — they depend only on
+  `req.user`, so they belong at the edge where they're visible and hard to forget.
+  **Ownership checks live inside services** — they need the fetched record
+  (`resource.ownerId === user.id`), and the service is what fetches it. Every
+  mutating service method follows: fetch → check existence (404) → check ownership
   (403) → act → return.
 - **Active-leads filter:** the default lead list query excludes lost leads. Only
   explicit reporting paths include them.
@@ -112,15 +116,6 @@ These decisions were made deliberately. Do not reverse them without asking:
 - Use Mongoose sessions/transactions for multi-step writes (lead conversion; a
   stage change that also appends `statusHistory`).
 
-## Working with Claude
-
-- **"commit"** always means: create a git commit with a meaningful message
-  derived from the actual changes and additions in that diff — never a generic
-  or placeholder message.
-- **"push"** always means: push to the remote repository declared in
-  `package.json` (`repository.url` →
-  `https://github.com/DaniBlaze1206/CRM-App.git`). No need to ask which remote.
-
 ## Commands
 
 ```bash
@@ -139,6 +134,9 @@ process should refuse to start if any required one is missing.
 
 - Add a repository/DAO layer under services. Mongoose *is* the data-access layer;
   services call it directly.
+- Build a dedicated policy/ability layer for authorization yet. A consistent
+  inline ownership check at the top of each mutating service method is fine for now;
+  extract a policy layer only once the check varies per resource or gets forgotten.
 - Build a generic base controller/service to "DRY up" the near-identical CRUD.
   Prefer obvious duplication; extract a shared helper only once real repetition
   causes pain.
