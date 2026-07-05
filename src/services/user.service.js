@@ -2,8 +2,6 @@ const mongoose = require('mongoose');
 const User = require('../models/user.model');
 const ApiError = require('../utils/ApiError');
 
-// The one rule with no other home: the system must always keep at least one
-// admin. Block deleting or demoting the last remaining admin.
 async function assertNotLastAdmin(user, action) {
   if (user.role !== 'admin') return;
 
